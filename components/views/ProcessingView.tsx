@@ -87,7 +87,7 @@ export const ProcessingView: React.FC<ProcessingViewProps> = ({ files, onComplet
   }, [processingFiles]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto">
         <header className="text-center mb-8">
             <div className="inline-block p-4 bg-white rounded-2xl shadow-sm mb-4">
