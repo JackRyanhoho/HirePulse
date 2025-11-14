@@ -1,9 +1,10 @@
-
 import type { Candidate, JobOpening } from '../types';
 
 export const SARAH_CHEN_DETAIL: Candidate = {
   id: 'c-sarah-chen',
   name: 'Sarah Chen',
+  email: 'sarah.chen@example.com',
+  phone: '555-0101',
   role: 'Senior Software Engineer',
   matchScore: 95,
   location: 'San Francisco, CA',
@@ -76,6 +77,8 @@ export const CANDIDATE_DATA: Candidate[] = [
     ...SARAH_CHEN_DETAIL,
     id: 'c1',
     name: 'Alex Johnson',
+    email: 'alex.j@example.com',
+    phone: '555-0102',
     role: 'Senior Frontend Developer',
     matchScore: 92,
     location: 'San Francisco, CA',
@@ -107,6 +110,8 @@ export const CANDIDATE_DATA: Candidate[] = [
   {
     id: 'c2',
     name: 'Maria Garcia',
+    email: 'maria.g@example.com',
+    phone: '555-0103',
     role: 'Full-Stack Engineer',
     matchScore: 85,
     location: 'New York, NY',
@@ -138,6 +143,8 @@ export const CANDIDATE_DATA: Candidate[] = [
   {
     id: 'c3',
     name: 'Chen Wei',
+    email: 'chen.w@example.com',
+    phone: '555-0104',
     role: 'DevOps Specialist',
     matchScore: 78,
     location: 'Seattle, WA',
@@ -169,6 +176,8 @@ export const CANDIDATE_DATA: Candidate[] = [
    {
     id: 'c4',
     name: 'Emily Carter',
+    email: 'emily.c@example.com',
+    phone: '555-0105',
     role: 'UX/UI Designer',
     matchScore: 95,
     location: 'Austin, TX',
@@ -187,6 +196,8 @@ export const CANDIDATE_DATA: Candidate[] = [
   {
     id: 'c5',
     name: 'David Lee',
+    email: 'david.l@example.com',
+    phone: '555-0106',
     role: 'Product Manager',
     matchScore: 89,
     location: 'Chicago, IL',
@@ -205,6 +216,8 @@ export const CANDIDATE_DATA: Candidate[] = [
   {
     id: 'c6',
     name: 'Sarah Jenkins',
+    email: 'sarah.j@example.com',
+    phone: '555-0107',
     role: 'Backend Developer',
     matchScore: 82,
     location: 'Boston, MA',
@@ -294,6 +307,8 @@ export const generateMockCandidateDetail = (name: string): Candidate => {
     id: `new-${name.replace(/\s+/g, '-')}-${Date.now()}`,
     name,
     role,
+    email: `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+    phone: `(555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
     matchScore: Math.floor(Math.random() * 21) + 75,
     location,
     avatarUrl: `https://picsum.photos/seed/${name}/100`,

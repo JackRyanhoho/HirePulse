@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Candidate, Experience, KeyProject, Education, Skill } from '../../types';
 import { Icon } from '../ui/Icon';
@@ -43,7 +42,10 @@ const ResumePreview: React.FC<{ candidate: Candidate }> = ({ candidate }) => (
         <header className="text-center pb-6 border-b border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800 uppercase">{candidate.name}</h2>
             <p className="text-slate-600">{candidate.role}</p>
-            <p className="text-sm text-slate-500 mt-1">sarah.chen@email.com | +1 (555) 123-4567</p>
+            <p className="text-sm text-slate-500 mt-1">
+                {candidate.email || 'No email found'}
+                {candidate.phone ? ` | ${candidate.phone}` : ''}
+            </p>
         </header>
         <div className="mt-6">
             <h4 className="font-bold text-primary-700 text-sm uppercase tracking-wider">Technical Skills</h4>
@@ -159,6 +161,9 @@ export const CandidateDetailView: React.FC<CandidateDetailViewProps> = ({
                             <p className="text-sm text-slate-500">{proj.tech.join(', ')}</p>
                         </div>
                     ))}
+                    {candidate.keyProjects.length === 0 && (
+                        <p className="text-sm text-slate-500">No key projects listed on the resume.</p>
+                    )}
                 </div>
             </DetailCard>
             

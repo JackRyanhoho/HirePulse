@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Icon } from '../ui/Icon';
 import type { ProcessingFile, Candidate } from '../../types';
@@ -34,7 +33,24 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 export const ProcessingView: React.FC<ProcessingViewProps> = ({ files, onComplete }) => {
   const [processingFiles, setProcessingFiles] = useState<ProcessingFile[]>([]);
-  const [isDoneProcessing, setIsDoneProcessing] = useState(false);
+  
+  // State to hold the final results from the API
+  const [apiResults, setApiResults] = useState<Candidate[] | null>(null);
+  
+  // State to track if the UI simulation is complete
+  const [isUiSimulationDone, setIsUiSimulationDone] = useState(false);
+
+  // Effect to call onComplete when both processes are finished
+  useEffect(() => {
+    if (isUiSimulationDone && apiResults) {
+        // A brief delay to let the final UI state render (e.g., 100% progress)
+        const timer = setTimeout(() => {
+             onComplete(apiResults);
+        }, 500);
+        return () => clearTimeout(timer);
+    }
+  }, [isUiSimulationDone, apiResults, onComplete]);
+
 
   // Effect for handling the actual API processing in the background
   useEffect(() => {
@@ -56,18 +72,8 @@ export const ProcessingView: React.FC<ProcessingViewProps> = ({ files, onComplet
                 result.status === 'fulfilled' && !!result.value && result.value.name !== 'Error Processing Resume'
             )
             .map(result => result.value);
-
-        // All API calls are done, now wait for the UI simulation to finish
-        const checkCompletionInterval = setInterval(() => {
-            if (isDoneProcessing) {
-                clearInterval(checkCompletionInterval);
-                setTimeout(() => {
-                    onComplete(successfulCandidates);
-                }, 500); // A brief delay for the final UI state to render
-            }
-        }, 100);
-
-        return () => clearInterval(checkCompletionInterval);
+        
+        setApiResults(successfulCandidates);
     };
 
     performProcessing();
@@ -75,7 +81,7 @@ export const ProcessingView: React.FC<ProcessingViewProps> = ({ files, onComplet
     return () => {
       isMounted = false;
     }
-  }, [files, onComplete, isDoneProcessing]);
+  }, [files]);
 
   // Effect for handling the UI simulation
   useEffect(() => {
@@ -124,7 +130,7 @@ export const ProcessingView: React.FC<ProcessingViewProps> = ({ files, onComplet
         });
 
         if (allCompleted) {
-          setIsDoneProcessing(true);
+          setIsUiSimulationDone(true);
           clearInterval(interval);
         }
         

@@ -28,6 +28,8 @@ export interface KeyProject {
 export interface Candidate {
   id: string;
   name: string;
+  email?: string;
+  phone?: string;
   role: string;
   matchScore: number;
   location: string;

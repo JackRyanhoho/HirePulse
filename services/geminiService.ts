@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { CANDIDATE_DATA } from './mockData';
 import type { Candidate } from '../types';
@@ -10,6 +9,8 @@ const resumeSchema = {
   type: Type.OBJECT,
   properties: {
     name: { type: Type.STRING, description: "Full name of the candidate." },
+    email: { type: Type.STRING, description: "The candidate's primary email address." },
+    phone: { type: Type.STRING, description: "The candidate's primary phone number." },
     role: { type: Type.STRING, description: "The candidate's most recent or current job title." },
     location: { type: Type.STRING, description: "The candidate's city and state, e.g., 'San Francisco, CA'." },
     summary: { type: Type.STRING, description: "A brief, one-sentence summary of the candidate's years of experience or key expertise." },
@@ -74,12 +75,13 @@ const resumeSchema = {
       },
     },
   },
-  required: ["name", "role", "summary", "skills", "experience", "education", "keyProjects"],
+  required: ["name", "email", "phone", "role", "summary", "skills", "experience", "education", "keyProjects"],
 };
 
 export const processResume = async (fileData: { mimeType: string; data: string }): Promise<Partial<Candidate>> => {
     const prompt = `
       Analyze the following resume document and extract the candidate's information in a structured JSON format according to the provided schema.
+      - Extract the full name, email address, and phone number.
       - For skills, if years of experience are mentioned, include them. Otherwise, omit the 'years' field.
       - For experience, list key responsibilities and achievements as an array of strings in the 'description' field. If no description is provided, return an empty array.
       - If a section like 'Key Projects' is not present, return an empty array for it.
