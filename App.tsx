@@ -6,8 +6,8 @@ import { StatsCard } from './components/StatsCard';
 import { FileUpload } from './components/FileUpload';
 import { ChatInterface } from './components/ChatInterface';
 import type { Candidate, ChatMessage, View, JobOpening } from './types';
-import { generateContent } from './services/geminiService';
-import { CANDIDATE_DATA, JOB_OPENINGS_DATA, SARAH_CHEN_DETAIL, generateMockCandidateDetail } from './services/mockData';
+import { generateChatResponse } from './services/geminiService';
+import { CANDIDATE_DATA, JOB_OPENINGS_DATA } from './services/mockData';
 import { CandidatesPage } from './components/pages/CandidatesPage';
 import { JobOpeningsPage } from './components/pages/JobOpeningsPage';
 import { CalendarPage } from './components/pages/CalendarPage';
@@ -46,38 +46,28 @@ const App: React.FC = () => {
     setAppState('processing');
   };
   
-  const handleProcessingComplete = () => {
-    const newCandidates: Candidate[] = uploadedFiles.map((file, index) => {
-        let name = file.name
-            .split('.')[0]
-            .replace(/[_.-]/g, ' ')
-            .replace(/resume|cv/i, '')
-            .trim()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
-        
-        if (!name) name = `Candidate ${Date.now()}`;
-        
-        // Use the detailed template for the first candidate, generate for others
-        if (index === 0) {
-          return {
-            ...SARAH_CHEN_DETAIL,
-            id: `new-${file.name}-${Date.now()}`,
-            name: name,
-            avatarUrl: `https://picsum.photos/seed/${file.name}/100`,
-          };
-        }
+  const handleProcessingComplete = (newlyProcessedCandidates: Candidate[]) => {
+    if (newlyProcessedCandidates.length === 0) {
+        console.warn("Processing completed, but no valid candidate data was returned.");
+        setUploadedFiles([]);
+        setAppState('main');
+        // Optionally, show an error message to the user
+        return;
+    }
 
-        return generateMockCandidateDetail(name);
-    });
+    const finalizedCandidates = newlyProcessedCandidates.map((candidate, index) => ({
+        ...candidate,
+        id: `new-${candidate.name.replace(/\s+/g, '-')}-${Date.now()}`,
+        avatarUrl: `https://picsum.photos/seed/${candidate.name.split(' ').join('')}${index}/100`,
+        matchScore: Math.floor(Math.random() * 21) + 75, // Simulate match score
+    }));
 
-    setCandidates(prev => [...prev, ...newCandidates]);
+    setCandidates(prev => [...prev, ...finalizedCandidates]);
     setUploadedFiles([]);
     
-    setProcessedCandidates(newCandidates);
+    setProcessedCandidates(finalizedCandidates);
     setProcessedIndex(0);
-    setSelectedCandidate(newCandidates[0]);
+    setSelectedCandidate(finalizedCandidates[0]);
     setAppState('detail');
   };
 
@@ -110,7 +100,7 @@ const App: React.FC = () => {
     setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
 
     try {
-      const response = await generateContent(message);
+      const response = await generateChatResponse(message);
       const aiResponseText = response.text;
       
       let foundCandidates: Candidate[] = [];
@@ -130,7 +120,7 @@ const App: React.FC = () => {
       });
 
     } catch (error) {
-      console.error("Error calling Gemini API:", error);
+      console.error("Error calling Mock API:", error);
       setChatMessages(prev => {
          const newMessages = [...prev];
         const lastMessage = newMessages[newMessages.length - 1];
