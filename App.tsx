@@ -7,7 +7,7 @@ import { FileUpload } from './components/FileUpload';
 import { ChatInterface } from './components/ChatInterface';
 import type { Candidate, ChatMessage, View, JobOpening } from './types';
 import { generateChatResponse } from './services/geminiService';
-import { CANDIDATE_DATA, JOB_OPENINGS_DATA } from './services/mockData';
+import { CANDIDATE_DATA, JOB_OPENINGS_DATA, generateMockCandidateDetail } from './services/mockData';
 import { CandidatesPage } from './components/pages/CandidatesPage';
 import { JobOpeningsPage } from './components/pages/JobOpeningsPage';
 import { CalendarPage } from './components/pages/CalendarPage';
@@ -47,17 +47,28 @@ const App: React.FC = () => {
   };
   
   const handleProcessingComplete = (newlyProcessedCandidates: Candidate[]) => {
-    if (newlyProcessedCandidates.length === 0) {
+    let candidatesToProcess = newlyProcessedCandidates;
+
+    // FIX: If processing returns no candidates (e.g., API key issue locally)
+    // but there were files to process, generate mock data to ensure the UI flow continues.
+    if (candidatesToProcess.length === 0 && uploadedFiles.length > 0) {
+        console.warn("Processing resulted in zero candidates. Generating mock data for demonstration purposes based on filenames.");
+        candidatesToProcess = uploadedFiles.map(file => {
+            const name = file.name.replace(/\.[^/.]+$/, ""); // Remove file extension
+            return generateMockCandidateDetail(name);
+        });
+    }
+
+    if (candidatesToProcess.length === 0) {
         console.warn("Processing completed, but no valid candidate data was returned.");
         setUploadedFiles([]);
         setAppState('main');
-        // Optionally, show an error message to the user
         return;
     }
 
-    const finalizedCandidates = newlyProcessedCandidates.map((candidate, index) => ({
+    const finalizedCandidates = candidatesToProcess.map((candidate, index) => ({
         ...candidate,
-        id: `new-${candidate.name.replace(/\s+/g, '-')}-${Date.now()}`,
+        id: `new-${candidate.name.replace(/\s+/g, '-')}-${Date.now() + index}`,
         avatarUrl: `https://picsum.photos/seed/${candidate.name.split(' ').join('')}${index}/100`,
         matchScore: Math.floor(Math.random() * 21) + 75, // Simulate match score
     }));

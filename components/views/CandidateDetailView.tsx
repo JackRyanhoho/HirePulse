@@ -88,14 +88,16 @@ export const CandidateDetailView: React.FC<CandidateDetailViewProps> = ({
     isProcessingFlow,
     currentIndex = 0,
     totalProfiles = 0,
-    onNavigate = () => {},
+    // FIX: Updated default function to accept one argument to match type signature.
+    onNavigate = (_) => {},
 }) => {
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 flex items-center justify-between">
           <div>
-            <button onClick={onClose} className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+            {/* FIX: Wrapped onClose in an arrow function to prevent passing event arguments. */}
+            <button onClick={() => onClose()} className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
               {isProcessingFlow && totalProfiles > 1 ? `Finish Review (${totalProfiles} new)` : 'AI Extraction Complete'}
             </button>
             <h1 className="text-xl font-semibold text-slate-700 mt-2">Candidate Profile Extraction</h1>
