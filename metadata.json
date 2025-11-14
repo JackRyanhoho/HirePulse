@@ -1,0 +1,5 @@
+{
+  "name": "HirePulse",
+  "description": "An intelligent recruiting assistant that uses AI to parse resumes, build a candidate knowledge graph, and provide a conversational interface for recruiters to find the best talent. This prototype demonstrates the core frontend experience.",
+  "requestFramePermissions": []
+}
