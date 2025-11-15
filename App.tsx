@@ -153,69 +153,110 @@ const App: React.FC = () => {
       }
   };
 
-  const handleSendMessage = useCallback((message: string) => {
+const handleSendMessage = useCallback((message: string) => {
     setChatMessages(prev => [...prev, { sender: 'user', text: message }]);
+    setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
+    setIsSearching(true);
 
-    const lowerCaseMessage = message.toLowerCase().trim();
-    const isFintechReactQuery = lowerCaseMessage.includes('react') && 
-                                (lowerCaseMessage.includes('fintech') || lowerCaseMessage.includes('finance') || lowerCaseMessage.includes('banking'));
+    // Simulate async search
+    setTimeout(() => {
+        const lowerCaseMessage = message.toLowerCase().trim();
+        
+        // 1. Keyword Parsing
+        const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'with', 'for', 'of', 'find', 'show', 'me', 'who', 'is', 'are', 'have', 'has', 'and', 'or', 'developer', 'engineer', 'specialist', 'experience']);
+        const keywords = lowerCaseMessage.split(/[\s+,]/).filter(word => word.length > 1 && !stopWords.has(word.replace(/[.,!?]/g, '')));
 
-    if (isFintechReactQuery) {
-        setIsSearching(true);
-        setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
-
-        setTimeout(() => {
-            const filteredCandidates = candidates.filter(c => 
-                c.skills.some(s => s.name.toLowerCase().includes('react')) &&
-                (
-                    c.skills.some(s => s.name.toLowerCase().includes('fintech')) ||
-                    c.skills.some(s => s.name.toLowerCase().includes('banking')) ||
-                    c.skills.some(s => s.name.toLowerCase().includes('financial')) ||
-                    c.summary.toLowerCase().includes('fintech') ||
-                    c.summary.toLowerCase().includes('finance')
-                )
-            ).sort((a, b) => b.matchScore - a.matchScore);
-
-            setSearchResults(filteredCandidates);
-            
-            const botResponse = {
-                text: `Searching...\n\n${filteredCandidates.length} candidates found. Displaying strongest matches based on technical skills and domain expertise.`
-            };
-
+        if (keywords.length === 0) {
+            setSearchResults([]);
+            const botResponse = { text: "Please provide some keywords to search for, like 'React developer' or 'Python and AWS'." };
             setChatMessages(prev => {
                 const newMessages = [...prev];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage && lastMessage.isLoading) {
                     lastMessage.text = botResponse.text;
                     lastMessage.isLoading = false;
-                    lastMessage.candidates = []; // Ensure no candidates are rendered in the chat bubble
                 }
                 return newMessages;
             });
+            return;
+        }
 
-        }, 1500);
-
-    } else {
-        setIsSearching(false);
-        setSearchResults([]);
-        setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
-
-        setTimeout(() => {
-            const botResponse = {
-                text: "I am currently configured to respond to queries including 'React' and 'fintech'. Try asking 'Find candidates with React + fintech experience'.",
+        // 2. Scoring Algorithm
+        const scoredCandidates = candidates.map(candidate => {
+            let score = 0;
+            const lowerCaseCandidate = {
+                role: candidate.role.toLowerCase(),
+                summary: candidate.summary.toLowerCase(),
+                skills: candidate.skills.map(s => s.name.toLowerCase()),
+                experience: candidate.experience.map(e => ({
+                    role: e.role.toLowerCase(),
+                    description: e.description.join(' ').toLowerCase()
+                })),
+                keyProjects: candidate.keyProjects.map(p => ({
+                    name: p.name.toLowerCase(),
+                    tech: p.tech.join(' ').toLowerCase(),
+                    description: p.description.toLowerCase()
+                }))
             };
 
-            setChatMessages(prev => {
-                const newMessages = [...prev];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage && lastMessage.isLoading) {
-                    lastMessage.text = botResponse.text;
-                    lastMessage.isLoading = false;
+            keywords.forEach(keyword => {
+                if (lowerCaseCandidate.skills.some(skill => skill.includes(keyword))) {
+                    score += 10;
                 }
-                return [...newMessages];
+                if (lowerCaseCandidate.role.includes(keyword)) {
+                    score += 8;
+                }
+                 lowerCaseCandidate.experience.forEach(exp => {
+                    if (exp.role.includes(keyword)) {
+                        score += 5;
+                    }
+                    if (exp.description.includes(keyword)) {
+                        score += 2;
+                    }
+                });
+                if (lowerCaseCandidate.summary.includes(keyword)) {
+                    score += 4;
+                }
+                lowerCaseCandidate.keyProjects.forEach(proj => {
+                    if(proj.name.includes(keyword) || proj.tech.includes(keyword) || proj.description.includes(keyword)) {
+                        score += 1;
+                    }
+                });
             });
-        }, 1000);
-    }
+
+            return { ...candidate, newMatchScore: score };
+        });
+
+        // 3. Filtering and Ranking
+        const filteredAndRanked = scoredCandidates
+            .filter(c => c.newMatchScore > 0)
+            .sort((a, b) => b.newMatchScore - a.newMatchScore);
+
+        const maxScore = Math.max(...filteredAndRanked.map(c => c.newMatchScore), 1);
+        const finalResults = filteredAndRanked.map(c => ({
+            ...c,
+            matchScore: Math.min(99, Math.round((c.newMatchScore / maxScore) * 90) + 10)
+        }));
+
+        setSearchResults(finalResults);
+        
+        const botResponseText = finalResults.length > 0 
+            ? `Searching...\n\nI found ${finalResults.length} candidate(s) that match your query. Here are the top results.`
+            : `I couldn't find any candidates matching your query for "${keywords.join(' ')}". Try broadening your search.`;
+
+        setChatMessages(prev => {
+            const newMessages = [...prev];
+            const lastMessage = newMessages[newMessages.length - 1];
+            if (lastMessage && lastMessage.isLoading) {
+                lastMessage.text = botResponseText;
+                lastMessage.isLoading = false;
+                lastMessage.candidates = [];
+            }
+            return newMessages;
+        });
+
+    }, 1500);
+
 }, [candidates]);
 
 
