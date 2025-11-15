@@ -1,29 +1,20 @@
-# HirePulse - AI Recruiting Assistant
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-An intelligent recruiting assistant that uses AI to parse resumes, build a candidate knowledge graph, and provide a conversational interface for recruiters to find the best talent. This prototype demonstrates the core frontend experience.
+# Run and deploy your AI Studio app
 
-## ✨ Key Features
+This contains everything you need to run your app locally.
 
--   **Conversational AI Search**: Ask questions in natural language (e.g., "Find me senior developers with React experience") to instantly find the most relevant candidates.
--   **Automated Resume Ingestion**: Upload multiple resumes (PDF, DOCX) and watch as the AI automatically parses them, extracts structured data, and creates detailed candidate profiles.
--   **Comprehensive Dashboard**: Get a high-level overview of your recruiting pipeline with key stats like total candidates, active roles, and interview counts.
--   **Candidate Management**: View, sort, and filter all candidates in a centralized database. Dive deep into individual profiles to see skills, experience, and AI-extracted insights.
--   **Job & Calendar Management**: Track job openings and manage your interview schedule with an integrated calendar view.
+View your app in AI Studio: https://ai.studio/apps/drive/16sH8jdo_6b1bgu5DZObKkul7JAOOct48
 
-## 🛠️ Tech Stack
+## Run Locally
 
--   **Frontend**: React, TypeScript, Tailwind CSS
--   **AI Integration**: Google Gemini API for resume parsing and conversational search.
--   **Real-time Chat**: Agora Chat SDK (for the initial chatbot integration)
+**Prerequisites:**  Node.js
 
-## 🚀 Getting Started
 
-This is a frontend prototype. To run this application:
-
-1.  Ensure you have a modern web browser.
-2.  Serve the `index.html` file using a local web server.
-3.  Make sure the necessary environment variables (like `API_KEY` for the Gemini API) are configured in the execution environment.
-
----
-
-_This project was built to demonstrate a modern, AI-powered approach to talent acquisition._
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
