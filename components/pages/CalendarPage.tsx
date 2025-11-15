@@ -57,6 +57,11 @@ const MOCK_EVENTS: CalendarEvent[] = [
     { id: 'e34', title: 'Interview: Jessica W.', date: '2024-10-16', color: 'bg-green-500' },
     { id: 'e35', title: 'Final Interview: Olivia C.', date: '2024-10-22', color: 'bg-purple-500' },
     { id: 'e36', title: 'Follow-up: Jessica W.', date: '2024-10-24', color: 'bg-blue-500' },
+
+    // November 2025
+    { id: 'e41', title: 'Screening Call: Jane Doe', date: '2025-11-10', color: 'bg-green-500' },
+    { id: 'e42', title: 'Q4 Hiring Strategy', date: '2025-11-17', color: 'bg-yellow-500' },
+    { id: 'e43', title: 'Final Interview: Sam Wilson', date: '2025-11-24', color: 'bg-purple-500' },
 ];
 
 
