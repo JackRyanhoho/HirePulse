@@ -6,13 +6,16 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
 
 const icons: { [key: string]: React.ReactNode } = {
   logo: (
-    <path
-      d="M12.5 5.25L10.3636 9.63636L5.25 10.3636L9.63636 12.5L10.3636 17.25L12.5 12.5L17.25 11.6364L12.5 10.3636L11.6364 5.25L12.5 5.25Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <g>
+      <mask id="hirepulse-logo-mask">
+        {/* White shape that will be visible */}
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" fill="white" />
+        {/* Black stroke that will be cut out */}
+        <path d="M8 13.5h2l2-4 4 8 2-4h2" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </mask>
+      {/* Apply the mask to a solid rectangle filled with the current color */}
+      <rect width="24" height="24" fill="currentColor" mask="url(#hirepulse-logo-mask)" />
+    </g>
   ),
   dashboard: (
     <path

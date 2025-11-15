@@ -16,10 +16,12 @@ import { SettingsPage } from './components/pages/SettingsPage';
 import { ProcessingView } from './components/views/ProcessingView';
 import { CandidateDetailView } from './components/views/CandidateDetailView';
 import { SearchResults } from './components/SearchResults';
+import { CoverPage } from './components/CoverPage';
 
 type AppState = 'main' | 'processing' | 'detail';
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [appState, setAppState] = useState<AppState>('main');
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [candidates, setCandidates] = useState<Candidate[]>(CANDIDATE_DATA);
@@ -28,7 +30,7 @@ const App: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       sender: 'ai',
-      text: "Hi! I can help you find candidates. Try asking things like 'Find candidates with React + fintech experience'.",
+      text: "Hi! This is Agora AI. I can help you find candidates. Try asking things like 'Find candidates with React + fintech experience'.",
     },
   ]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -77,6 +79,18 @@ const App: React.FC = () => {
         }
     };
   }, []);
+  
+  const handleSignIn = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    // Optional: Reset state on logout
+    setActiveView('dashboard');
+    setIsSearching(false);
+    setSearchResults([]);
+  };
 
 
   const handleFileUpload = (files: FileList | null) => {
@@ -265,6 +279,10 @@ const App: React.FC = () => {
     }
   }
   
+  if (!isAuthenticated) {
+    return <CoverPage onSignIn={handleSignIn} />;
+  }
+
   if (appState === 'processing') {
     return <ProcessingView files={uploadedFiles} onComplete={handleProcessingComplete} />;
   }
@@ -285,7 +303,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-100 font-sans">
-      <Sidebar activeView={activeView} onNavigate={setActiveView} />
+      <Sidebar activeView={activeView} onNavigate={setActiveView} onLogout={handleSignOut} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header activeView={activeView} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-100 p-4 md:p-6 lg:p-8">

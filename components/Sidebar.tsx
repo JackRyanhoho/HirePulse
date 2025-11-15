@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Icon } from './ui/Icon';
 import type { View } from '../types';
@@ -27,9 +28,10 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ icon, label, viewName, active
 interface SidebarProps {
     activeView: View;
     onNavigate: (view: View) => void;
+    onLogout: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onLogout }) => {
   const navItems: { viewName: View; label: string; icon: string }[] = [
     { viewName: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
     { viewName: 'candidates', label: 'Candidates', icon: 'candidates' },
@@ -64,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate }) => {
             activeView={activeView}
             onNavigate={onNavigate}
         />
-         <button className="flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg text-slate-500 hover:bg-slate-200 hover:text-slate-800">
+         <button onClick={onLogout} className="flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg text-slate-500 hover:bg-slate-200 hover:text-slate-800">
           <Icon name="logout" />
           <span className="ml-3">Logout</span>
         </button>
