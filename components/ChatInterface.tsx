@@ -73,7 +73,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about candidates..."
-            className="w-full pl-4 pr-12 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-4 pr-12 py-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-900"
           />
           <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 disabled:bg-slate-300 transition-colors">
             <Icon name="send" />
