@@ -1,80 +1,123 @@
+
 import type { Candidate, JobOpening } from '../types';
-
-export const SARAH_CHEN_DETAIL: Candidate = {
-  id: 'c-sarah-chen',
-  name: 'Sarah Chen',
-  email: 'sarah.chen@example.com',
-  phone: '555-0101',
-  role: 'Senior Software Engineer',
-  matchScore: 95,
-  location: 'San Francisco, CA',
-  avatarUrl: 'https://picsum.photos/seed/sarahchen/100',
-  summary: '5+ years experience',
-  skills: [
-    { name: 'React' },
-    { name: 'TypeScript' },
-    { name: 'Node.js' },
-    { name: 'Python' },
-    { name: 'Machine Learning' },
-    { name: 'AWS' },
-    { name: 'Docker' },
-    { name: 'PostgreSQL' },
-    { name: 'GraphQL' },
-    { name: 'CI/CD' },
-  ],
-  experience: [
-    {
-      role: 'Senior Software Engineer',
-      company: 'TechCorp Inc.',
-      duration: '2021 - Present',
-      description: [
-        'Led development of microservices architecture serving 1M+ users.',
-        'Implemented CI/CD pipelines reducing deployment time by 60%.',
-      ],
-    },
-    {
-      role: 'Software Engineer',
-      company: 'StartupXYZ',
-      duration: '2019 - 2021',
-      description: ['Built real-time analytics dashboard using React and GraphQL.'],
-    },
-    {
-      role: 'Junior Developer',
-      company: 'DevStudio',
-      duration: '2017 - 2019',
-      description: [],
-    },
-  ],
-  education: [
-    {
-      degree: 'B.S. Computer Science',
-      institution: 'Stanford University',
-      year: '2013 - 2017',
-    },
-  ],
-  keyProjects: [
-    {
-      name: 'E-commerce Platform',
-      tech: ['React', 'Node.js', 'MongoDB'],
-      description: '',
-    },
-    {
-      name: 'ML Recommendation Engine',
-      tech: ['Python', 'TensorFlow', 'AWS'],
-      description: '',
-    },
-    {
-      name: 'Real-time Analytics Dashboard',
-      tech: ['React', 'GraphQL', 'WebSocket'],
-      description: '',
-    },
-  ],
-};
-
 
 export const CANDIDATE_DATA: Candidate[] = [
   {
-    ...SARAH_CHEN_DETAIL,
+    id: 'c-sarah-chen',
+    name: 'Sarah Chen',
+    email: 'sarah.chen@example.com',
+    phone: '555-0101',
+    role: 'Senior Software Engineer',
+    matchScore: 95,
+    location: 'San Francisco, CA',
+    avatarUrl: 'https://picsum.photos/seed/sarahchen/100',
+    summary: '5+ years building fintech platforms at TechCorp. Led development of payment processing system using React and microservices.',
+    skills: [
+      { name: 'React' },
+      { name: 'TypeScript' },
+      { name: 'Fintech APIs' },
+      { name: 'Node.js' },
+      { name: 'AWS' },
+    ],
+    experience: [
+      {
+        role: 'Senior Software Engineer',
+        company: 'TechCorp Inc.',
+        duration: '2021 - Present',
+        description: [
+          'Led development of microservices architecture for a payment processing system serving 1M+ users.',
+          'Implemented CI/CD pipelines reducing deployment time by 60%.',
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: 'B.S. Computer Science',
+        institution: 'Stanford University',
+        year: '2017',
+      },
+    ],
+    keyProjects: [
+      {
+        name: 'Payment Processing Gateway',
+        tech: ['React', 'Node.js', 'AWS'],
+        description: 'High-throughput payment gateway for fintech applications.',
+      },
+    ],
+  },
+  {
+    id: 'c-michael-torres',
+    name: 'Michael Torres',
+    email: 'michael.t@example.com',
+    phone: '555-0112',
+    role: 'Full Stack Developer',
+    matchScore: 88,
+    location: 'New York, NY',
+    avatarUrl: 'https://picsum.photos/seed/michaeltorres/100',
+    summary: '3 years at FinanceHub developing trading dashboards with React. Experience with payment gateway integrations.',
+    skills: [
+      { name: 'React' },
+      { name: 'Python' },
+      { name: 'Banking Systems' },
+      { name: 'PostgreSQL' },
+    ],
+    experience: [
+      {
+        role: 'Full Stack Developer',
+        company: 'FinanceHub',
+        duration: '2020 - Present',
+        description: [
+          'Developed real-time trading dashboards and analytical tools using React and Python.',
+          'Integrated with multiple third-party payment gateways and financial data APIs.',
+        ],
+      },
+    ],
+     education: [
+      {
+        degree: 'B.S. in Computer Science',
+        institution: 'Columbia University',
+        year: '2020',
+      },
+    ],
+    keyProjects: [],
+  },
+  {
+    id: 'c-jessica-williams',
+    name: 'Jessica Williams',
+    email: 'jessica.w@example.com',
+    phone: '555-0113',
+    role: 'Frontend Engineer',
+    matchScore: 82,
+    location: 'Chicago, IL',
+    avatarUrl: 'https://picsum.photos/seed/jessicawilliams/100',
+    summary: 'Built real-time stock trading interface at InvestCo. Strong React skills with focus on data visualization.',
+    skills: [
+        { name: 'React' },
+        { name: 'Redux' },
+        { name: 'Financial Data Viz' },
+        { name: 'D3.js' },
+    ],
+    experience: [
+      {
+        role: 'Frontend Engineer',
+        company: 'InvestCo',
+        duration: '2019 - Present',
+        description: [
+          'Built and maintained a high-performance, real-time stock trading user interface using React and Redux.',
+          'Developed custom data visualization components with D3.js to display complex financial data.',
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: 'B.A. in Design & Technology',
+        institution: 'University of Illinois',
+        year: '2019',
+      },
+    ],
+    keyProjects: [],
+  },
+  {
     id: 'c1',
     name: 'Alex Johnson',
     email: 'alex.j@example.com',
@@ -83,7 +126,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 92,
     location: 'San Francisco, CA',
     avatarUrl: 'https://picsum.photos/seed/alex/100',
-    summary: '6+ years of frontend experience',
+    summary: '6+ years of frontend experience architecting micro-frontend platforms.',
     skills: [
       { name: 'React', years: 6 },
       { name: 'TypeScript', years: 5 },
@@ -116,7 +159,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 85,
     location: 'New York, NY',
     avatarUrl: 'https://picsum.photos/seed/maria/100',
-    summary: '7+ years of full-stack experience',
+    summary: '7+ years of full-stack experience building RESTful APIs.',
     skills: [
       { name: 'Python', years: 7 },
       { name: 'Django', years: 5 },
@@ -149,7 +192,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 78,
     location: 'Seattle, WA',
     avatarUrl: 'https://picsum.photos/seed/chen/100',
-    summary: '7+ years of DevOps experience',
+    summary: '7+ years of DevOps experience managing cloud infrastructure on AWS and GCP.',
     skills: [
       { name: 'Kubernetes', years: 5 },
       { name: 'Docker', years: 6 },
@@ -182,7 +225,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 95,
     location: 'Austin, TX',
     avatarUrl: 'https://picsum.photos/seed/emily/100',
-    summary: '6+ years of design experience',
+    summary: '6+ years of design experience in user research and prototyping.',
     skills: [
       { name: 'Figma', years: 5 },
       { name: 'Sketch', years: 4 },
@@ -202,7 +245,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 89,
     location: 'Chicago, IL',
     avatarUrl: 'https://picsum.photos/seed/david/100',
-    summary: '8+ years of product experience',
+    summary: '8+ years of product experience with Agile methodologies.',
     skills: [
       { name: 'Agile', years: 8 },
       { name: 'Roadmapping', years: 6 },
@@ -222,7 +265,7 @@ export const CANDIDATE_DATA: Candidate[] = [
     matchScore: 82,
     location: 'Boston, MA',
     avatarUrl: 'https://picsum.photos/seed/sarah/100',
-    summary: '8+ years of backend experience',
+    summary: '8+ years of backend experience with Java and Spring Boot.',
     skills: [
         { name: 'Java', years: 8 },
         { name: 'Spring Boot', years: 6 },
@@ -231,6 +274,138 @@ export const CANDIDATE_DATA: Candidate[] = [
     ],
     experience: [],
     education: [],
+    keyProjects: [],
+  },
+  {
+    id: 'c7',
+    name: 'Laura Smith',
+    email: 'laura.s@example.com',
+    phone: '555-0108',
+    role: 'Frontend Developer',
+    matchScore: 88,
+    location: 'Austin, TX',
+    avatarUrl: 'https://picsum.photos/seed/laura/100',
+    summary: '3+ years of frontend experience with React and Vue.js.',
+    skills: [
+        { name: 'React', years: 3 },
+        { name: 'Vue.js', years: 2 },
+        { name: 'TypeScript', years: 3 },
+        { name: 'TailwindCSS', years: 2 },
+    ],
+    experience: [
+        {
+          role: 'Frontend Developer',
+          company: 'Synergy Systems',
+          duration: '2020 - Present',
+          description: ['Developed and maintained client-facing web applications using React.', 'Improved component library performance.'],
+        },
+    ],
+    education: [
+        {
+          degree: 'B.A. in Digital Media',
+          institution: 'University of Texas',
+          year: '2019',
+        },
+    ],
+    keyProjects: [],
+  },
+  {
+    id: 'c8',
+    name: 'Michael Chen',
+    email: 'michael.c@example.com',
+    phone: '555-0109',
+    role: 'Frontend Developer',
+    matchScore: 85,
+    location: 'Seattle, WA',
+    avatarUrl: 'https://picsum.photos/seed/michael/100',
+    summary: '4+ years of frontend experience with a focus on Vue.js.',
+    skills: [
+        { name: 'Vue.js', years: 4 },
+        { name: 'JavaScript', years: 4 },
+        { name: 'CSS', years: 4 },
+        { name: 'Webpack', years: 3 },
+    ],
+    experience: [
+        {
+          role: 'Frontend Developer',
+          company: 'NextGen AI',
+          duration: '2019 - Present',
+          description: ['Led the migration of a legacy jQuery app to Vue.js.', 'Built and maintained a reusable component library.'],
+        },
+    ],
+    education: [
+        {
+          degree: 'B.S. in Web Design & Development',
+          institution: 'University of Washington',
+          year: '2018',
+        },
+    ],
+    keyProjects: [],
+  },
+  {
+    id: 'c9',
+    name: 'Jessica Rodriguez',
+    email: 'jessica.r@example.com',
+    phone: '555-0110',
+    role: 'Frontend Engineer',
+    matchScore: 89,
+    location: 'New York, NY',
+    avatarUrl: 'https://picsum.photos/seed/jessica/100',
+    summary: '5+ years of frontend experience building complex SPAs with Angular.',
+    skills: [
+        { name: 'Angular', years: 5 },
+        { name: 'TypeScript', years: 5 },
+        { name: 'RxJS', years: 4 },
+        { name: 'Ngrx', years: 3 },
+    ],
+    experience: [
+        {
+          role: 'Frontend Engineer',
+          company: 'QuantumLeap',
+          duration: '2018 - Present',
+          description: ['Developed complex single-page applications for financial clients using Angular.', 'Mentored junior developers on best practices.'],
+        },
+    ],
+    education: [
+        {
+          degree: 'B.S. in Computer Engineering',
+          institution: 'Columbia University',
+          year: '2017',
+        },
+    ],
+    keyProjects: [],
+  },
+  {
+    id: 'c10',
+    name: 'Brian Miller',
+    email: 'brian.m@example.com',
+    phone: '555-0111',
+    role: 'Junior Frontend Developer',
+    matchScore: 80,
+    location: 'Chicago, IL',
+    avatarUrl: 'https://picsum.photos/seed/brian/100',
+    summary: '2+ years of frontend experience building responsive landing pages.',
+    skills: [
+        { name: 'HTML', years: 2 },
+        { name: 'CSS', years: 2 },
+        { name: 'JavaScript', years: 2 },
+        { name: 'jQuery', years: 1 },
+    ],
+    experience: [
+        {
+          role: 'Junior Frontend Developer',
+          company: 'Innovate Inc.',
+          duration: '2021 - Present',
+          description: ['Assisted in building responsive landing pages and email templates.', 'Fixed UI bugs across multiple web properties.'],
+        },
+    ],
+    education: [
+        {
+          degree: 'Certificate in Web Development',
+          institution: 'Code Academy',
+          year: '2021',
+        },
+    ],
     keyProjects: [],
   }
 ];

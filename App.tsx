@@ -1,13 +1,13 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { StatsCard } from './components/StatsCard';
 import { FileUpload } from './components/FileUpload';
 import { ChatInterface } from './components/ChatInterface';
 import type { Candidate, ChatMessage, View, JobOpening } from './types';
-import { generateChatResponse } from './services/geminiService';
-import { CANDIDATE_DATA, JOB_OPENINGS_DATA, generateMockCandidateDetail } from './services/mockData';
+import agoraService from './services/agoraService';
+import { CANDIDATE_DATA, JOB_OPENINGS_DATA } from './services/mockData';
 import { CandidatesPage } from './components/pages/CandidatesPage';
 import { JobOpeningsPage } from './components/pages/JobOpeningsPage';
 import { CalendarPage } from './components/pages/CalendarPage';
@@ -15,6 +15,7 @@ import { ReportsPage } from './components/pages/ReportsPage';
 import { SettingsPage } from './components/pages/SettingsPage';
 import { ProcessingView } from './components/views/ProcessingView';
 import { CandidateDetailView } from './components/views/CandidateDetailView';
+import { SearchResults } from './components/SearchResults';
 
 type AppState = 'main' | 'processing' | 'detail';
 
@@ -27,12 +28,56 @@ const App: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       sender: 'ai',
-      text: "Hello! I'm HirePulse. How can I help you find the perfect candidate today? You can ask me things like 'Find me a frontend developer with 5 years of React experience.'",
+      text: "Hi! I can help you find candidates. Try asking things like 'Find candidates with React + fintech experience'.",
     },
   ]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [processedCandidates, setProcessedCandidates] = useState<Candidate[]>([]);
   const [processedIndex, setProcessedIndex] = useState(0);
+  
+  const [searchResults, setSearchResults] = useState<Candidate[]>([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+
+  const candidatesRef = useRef(candidates);
+  useEffect(() => {
+    candidatesRef.current = candidates;
+  }, [candidates]);
+
+  useEffect(() => {
+    const handleMessageReceived = (botResponse: { text: string; candidates?: string[] }) => {
+        let foundCandidates: Candidate[] = [];
+        if (botResponse.candidates) {
+            foundCandidates = candidatesRef.current.filter(c => botResponse.candidates?.includes(c.id));
+        }
+
+        setChatMessages(prev => {
+            const newMessages = [...prev];
+            const lastMessage = newMessages[newMessages.length - 1];
+            if (lastMessage && lastMessage.isLoading) {
+                lastMessage.text = botResponse.text;
+                lastMessage.isLoading = false;
+                lastMessage.candidates = foundCandidates;
+            } else {
+                newMessages.push({
+                    sender: 'ai',
+                    text: botResponse.text,
+                    candidates: foundCandidates,
+                    isLoading: false
+                });
+            }
+            return newMessages;
+        });
+    };
+    
+    agoraService.init(handleMessageReceived);
+
+    return () => {
+        if (agoraService.conn && agoraService.conn.isOpened()) {
+            agoraService.conn.close();
+        }
+    };
+  }, []);
+
 
   const handleFileUpload = (files: FileList | null) => {
     if (files) {
@@ -47,30 +92,18 @@ const App: React.FC = () => {
   };
   
   const handleProcessingComplete = (newlyProcessedCandidates: Candidate[]) => {
-    let candidatesToProcess = newlyProcessedCandidates;
-
-    // FIX: If processing returns no candidates (e.g., API key issue locally)
-    // but there were files to process, generate mock data to ensure the UI flow continues.
-    if (candidatesToProcess.length === 0 && uploadedFiles.length > 0) {
-        console.warn("Processing resulted in zero candidates. Generating mock data for demonstration purposes based on filenames.");
-        candidatesToProcess = uploadedFiles.map(file => {
-            const name = file.name.replace(/\.[^/.]+$/, ""); // Remove file extension
-            return generateMockCandidateDetail(name);
-        });
-    }
-
-    if (candidatesToProcess.length === 0) {
+    if (newlyProcessedCandidates.length === 0) {
         console.warn("Processing completed, but no valid candidate data was returned.");
         setUploadedFiles([]);
         setAppState('main');
         return;
     }
 
-    const finalizedCandidates = candidatesToProcess.map((candidate, index) => ({
+    const finalizedCandidates = newlyProcessedCandidates.map((candidate, index) => ({
         ...candidate,
-        id: `new-${candidate.name.replace(/\s+/g, '-')}-${Date.now() + index}`,
+        id: `new-${candidate.name.replace(/\s+/g, '-')}-${Date.now()}`,
         avatarUrl: `https://picsum.photos/seed/${candidate.name.split(' ').join('')}${index}/100`,
-        matchScore: Math.floor(Math.random() * 21) + 75, // Simulate match score
+        matchScore: Math.floor(Math.random() * 21) + 75,
     }));
 
     setCandidates(prev => [...prev, ...finalizedCandidates]);
@@ -85,7 +118,7 @@ const App: React.FC = () => {
   const handleSelectCandidate = (candidateId: string) => {
     const candidate = candidates.find(c => c.id === candidateId);
     if (candidate) {
-      setProcessedCandidates([]); // Clear processing flow state
+      setProcessedCandidates([]);
       setSelectedCandidate(candidate);
       setAppState('detail');
     }
@@ -106,43 +139,71 @@ const App: React.FC = () => {
       }
   };
 
-  const handleSendMessage = useCallback(async (message: string) => {
+  const handleSendMessage = useCallback((message: string) => {
     setChatMessages(prev => [...prev, { sender: 'user', text: message }]);
-    setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
 
-    try {
-      const response = await generateChatResponse(message);
-      const aiResponseText = response.text;
-      
-      let foundCandidates: Candidate[] = [];
-      if (response.candidates) {
-        foundCandidates = candidates.filter(c => response.candidates?.includes(c.id));
-      }
+    const lowerCaseMessage = message.toLowerCase().trim();
+    const isFintechReactQuery = lowerCaseMessage.includes('react') && 
+                                (lowerCaseMessage.includes('fintech') || lowerCaseMessage.includes('finance') || lowerCaseMessage.includes('banking'));
 
-      setChatMessages(prev => {
-        const newMessages = [...prev];
-        const lastMessage = newMessages[newMessages.length - 1];
-        if (lastMessage && lastMessage.isLoading) {
-          lastMessage.text = aiResponseText;
-          lastMessage.isLoading = false;
-          lastMessage.candidates = foundCandidates;
-        }
-        return newMessages;
-      });
+    if (isFintechReactQuery) {
+        setIsSearching(true);
+        setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
 
-    } catch (error) {
-      console.error("Error calling Mock API:", error);
-      setChatMessages(prev => {
-         const newMessages = [...prev];
-        const lastMessage = newMessages[newMessages.length - 1];
-        if (lastMessage && lastMessage.isLoading) {
-          lastMessage.text = "Sorry, I encountered an error. Please try again.";
-          lastMessage.isLoading = false;
-        }
-        return newMessages;
-      });
+        setTimeout(() => {
+            const filteredCandidates = candidates.filter(c => 
+                c.skills.some(s => s.name.toLowerCase().includes('react')) &&
+                (
+                    c.skills.some(s => s.name.toLowerCase().includes('fintech')) ||
+                    c.skills.some(s => s.name.toLowerCase().includes('banking')) ||
+                    c.skills.some(s => s.name.toLowerCase().includes('financial')) ||
+                    c.summary.toLowerCase().includes('fintech') ||
+                    c.summary.toLowerCase().includes('finance')
+                )
+            ).sort((a, b) => b.matchScore - a.matchScore);
+
+            setSearchResults(filteredCandidates);
+            
+            const botResponse = {
+                text: `Searching...\n\n${filteredCandidates.length} candidates found. Displaying strongest matches based on technical skills and domain expertise.`
+            };
+
+            setChatMessages(prev => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.isLoading) {
+                    lastMessage.text = botResponse.text;
+                    lastMessage.isLoading = false;
+                    lastMessage.candidates = []; // Ensure no candidates are rendered in the chat bubble
+                }
+                return newMessages;
+            });
+
+        }, 1500);
+
+    } else {
+        setIsSearching(false);
+        setSearchResults([]);
+        setChatMessages(prev => [...prev, { sender: 'ai', text: '', isLoading: true }]);
+
+        setTimeout(() => {
+            const botResponse = {
+                text: "I am currently configured to respond to queries including 'React' and 'fintech'. Try asking 'Find candidates with React + fintech experience'.",
+            };
+
+            setChatMessages(prev => {
+                const newMessages = [...prev];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.isLoading) {
+                    lastMessage.text = botResponse.text;
+                    lastMessage.isLoading = false;
+                }
+                return [...newMessages];
+            });
+        }, 1000);
     }
-  }, [candidates]);
+}, [candidates]);
+
 
   const renderActiveView = () => {
     switch(activeView) {
@@ -155,25 +216,38 @@ const App: React.FC = () => {
               <StatsCard title="Shortlisted" value="48" change="-3" />
               <StatsCard title="Interviews" value="23" change="+8" />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Candidate Sourcing</h2>
-                <ChatInterface messages={chatMessages} onSendMessage={handleSendMessage} onSelectCandidate={handleSelectCandidate} />
-              </div>
-              <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-slate-800 mb-4">Resume Ingestion</h2>
-                  <FileUpload onFileUpload={handleFileUpload} uploadedFiles={uploadedFiles} />
-                  <button
-                    onClick={processResumes}
-                    disabled={uploadedFiles.length === 0}
-                    className="w-full mt-4 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {`Process ${uploadedFiles.length} Resumes`}
-                  </button>
+            {isSearching ? (
+                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    <div className="lg:col-span-3 bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-slate-800 mb-1">Conversational Search</h2>
+                        <p className="text-sm text-slate-500 mb-4">Ask questions in natural language to find the perfect candidates</p>
+                        <ChatInterface messages={chatMessages} onSendMessage={handleSendMessage} onSelectCandidate={handleSelectCandidate} />
+                    </div>
+                    <div className="lg:col-span-2">
+                        <SearchResults candidates={searchResults} onSelectCandidate={handleSelectCandidate} />
+                    </div>
                 </div>
-              </div>
-            </div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-slate-800 mb-4">Candidate Sourcing</h2>
+                        <ChatInterface messages={chatMessages} onSendMessage={handleSendMessage} onSelectCandidate={handleSelectCandidate} />
+                    </div>
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-slate-800 mb-4">Resume Ingestion</h2>
+                        <FileUpload onFileUpload={handleFileUpload} uploadedFiles={uploadedFiles} />
+                        <button
+                            onClick={processResumes}
+                            disabled={uploadedFiles.length === 0}
+                            className="w-full mt-4 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {`Process ${uploadedFiles.length} Resumes`}
+                        </button>
+                        </div>
+                    </div>
+                </div>
+            )}
           </>
         );
       case 'candidates':
